@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDIO Group – Projets d'infrastructure</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; }
+        header { background: #1a1a6e; color: white; padding: 16px 32px; display: flex; align-items: center; gap: 16px; }
+        header h1 { font-size: 1.4rem; font-weight: 600; }
+        header span { font-size: 0.85rem; opacity: 0.75; }
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: #1a1a6e; }
+        .stat-card .label { font-size: 0.82rem; color: #666; margin-top: 4px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .toolbar h2 { font-size: 1.1rem; color: #1a1a6e; }
+        .btn { display: inline-block; padding: 9px 20px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-decoration: none; border: none; }
+        .btn-primary { background: #1a1a6e; color: white; }
+        .btn-primary:hover { background: #14145a; }
+        .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+        .btn-edit { background: #e8f0fe; color: #1a1a6e; }
+        .btn-delete { background: #fce8e6; color: #c5221f; }
+        table { width: 100%; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-collapse: collapse; overflow: hidden; }
+        th { background: #1a1a6e; color: white; padding: 12px 16px; text-align: left; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+        td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8f9ff; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-EN_COURS { background: #e6f4ea; color: #137333; }
+        .badge-PLANIFIE { background: #e8f0fe; color: #1a1a6e; }
+        .badge-TERMINE { background: #f1f3f4; color: #555; }
+        .badge-SUSPENDU { background: #fce8e6; color: #c5221f; }
+        .type-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; background: #f0f4ff; color: #1a1a6e; }
+        .actions { display: flex; gap: 6px; }
+        footer { text-align: center; padding: 24px; font-size: 0.78rem; color: #999; margin-top: 32px; }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <h1>🏗 INDIO Group – Infrastructure Manager</h1>
+        <span>Portail de gestion des projets d'infrastructure · Plan de transformation 2025-2028</span>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="num" th:text="${totalProjects}">0</div>
+            <div class="label">Total projets</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#137333" th:text="${enCours}">0</div>
+            <div class="label">En cours</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#1a1a6e" th:text="${planifies}">0</div>
+            <div class="label">Planifiés</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" style="color:#555" th:text="${termines}">0</div>
+            <div class="label">Terminés</div>
+        </div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="toolbar">
+        <h2>Projets d'infrastructure</h2>
+        <a href="/projects/new" class="btn btn-primary">+ Nouveau projet</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Nom du projet</th>
+            <th>Type</th>
+            <th>Localisation</th>
+            <th>Statut</th>
+            <th>Budget (M€)</th>
+            <th>Début</th>
+            <th>Fin prévue</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${projects}">
+            <td><a th:href="@{/projects/{id}(id=${p.id})}" th:text="${p.name}" style="color:#1a1a6e;font-weight:600;text-decoration:none;"></a></td>
+            <td><span class="type-badge" th:text="${p.type}"></span></td>
+            <td th:text="${p.location}"></td>
+            <td><span class="badge" th:classappend="'badge-' + ${p.status}" th:text="${p.status}"></span></td>
+            <td th:text="${p.budgetMillions != null ? p.budgetMillions + ' M€' : '–'}"></td>
+            <td th:text="${p.startDate}"></td>
+            <td th:text="${p.endDate}"></td>
+            <td>
+                <div class="actions">
+                    <a th:href="@{/projects/{id}/edit(id=${p.id})}" class="btn btn-sm btn-edit">Modifier</a>
+                    <form th:action="@{/projects/{id}/delete(id=${p.id})}" method="post" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-delete"
+                                onclick="return confirm('Supprimer ce projet ?')">Supprimer</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer>INDIO Group · RFP-INDIO-2025-DSI002 · Infrastructure Manager v1.0.0</footer>
+</body>
+</html>
