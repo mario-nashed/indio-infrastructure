@@ -13,9 +13,7 @@ pipeline {
     }
     stages {
         stage('clean Workspace') {
-            steps {
-                cleanWs()
-            }
+            steps { cleanWs() }
         }
         stage('checkout scm') {
             steps {
@@ -24,14 +22,10 @@ pipeline {
             }
         }
         stage('maven compile') {
-            steps {
-                sh 'mvn clean compile'
-            }
+            steps { sh 'mvn clean compile' }
         }
         stage('maven Test') {
-            steps {
-                sh 'mvn test'
-            }
+            steps { sh 'mvn test' }
         }
         stage('Sonarqube Analysis') {
             steps {
@@ -52,9 +46,7 @@ pipeline {
             }
         }
         stage('Build jar file') {
-            steps {
-                sh 'mvn clean install -DskipTests=true'
-            }
+            steps { sh 'mvn clean install -DskipTests=true' }
         }
         stage('OWASP Dependency Check') {
             steps {
@@ -92,10 +84,10 @@ pipeline {
                 sh """
                     docker stop ${APP_NAME} || true
                     docker rm ${APP_NAME} || true
-                    docker run -d \\
-                        --name ${APP_NAME} \\
-                        -p 8080:8080 \\
-                        --restart unless-stopped \\
+                    docker run -d \
+                        --name ${APP_NAME} \
+                        -p 8080:8080 \
+                        --restart unless-stopped \
                         ${DOCKER_IMAGE}:${DOCKER_TAG}
                 """
             }
@@ -107,9 +99,6 @@ pipeline {
         }
         failure {
             echo "Pipeline en échec – vérifier les logs"
-        }
-        always {
-            sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} --force || true"
         }
     }
 }
