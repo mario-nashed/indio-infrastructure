@@ -87,7 +87,7 @@ pipeline {
 
         stage('Trivy scan') {
             steps {
-                sh "trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                sh "trivy image --timeout 15m --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
 
