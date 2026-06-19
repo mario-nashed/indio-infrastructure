@@ -1,11 +1,9 @@
 pipeline {
     agent any
-
     tools {
         jdk 'jdk21'
         maven 'maven3'
     }
-
     environment {
         SCANNER_HOME  = tool 'sonar-scanner'
         APP_NAME      = 'indio-app'
@@ -13,34 +11,28 @@ pipeline {
         DOCKER_TAG    = 'latest'
         SONAR_PROJECT = 'indio-infrastructure'
     }
-
     stages {
-
         stage('clean Workspace') {
             steps {
                 cleanWs()
             }
         }
-
         stage('checkout scm') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/mario-nashed/indio-infrastructure.git'
             }
         }
-
         stage('maven compile') {
             steps {
                 sh 'mvn clean compile'
             }
         }
-
         stage('maven Test') {
             steps {
                 sh 'mvn test'
             }
         }
-
         stage('Sonarqube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
@@ -51,7 +43,6 @@ pipeline {
                 }
             }
         }
-
         stage('quality gate') {
             steps {
                 script {
@@ -60,24 +51,19 @@ pipeline {
                 }
             }
         }
-
         stage('Build jar file') {
             steps {
                 sh 'mvn clean install -DskipTests=true'
             }
         }
-
-
-	stage('OWASP Dependency Check') {
-	    steps {
-		withCredentials([string(credentialsId: 'NVD_API', variable: 'NVD_API_KEY')]) {
-	            dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY}",
-				odcInstallation: 'DP-Check'
+        stage('OWASP Dependency Check') {
+            steps {
+                withCredentials([string(credentialsId: 'NVD_API', variable: 'NVD_API_KEY')]) {
+                    dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY}",
+                                    odcInstallation: 'DP-Check'
+                }
             }
-	}
-
-
-
+        }
         stage('Docker build') {
             steps {
                 script {
@@ -87,13 +73,11 @@ pipeline {
                 }
             }
         }
-
         stage('Trivy scan') {
             steps {
                 sh "trivy image --timeout 15m --severity HIGH,CRITICAL ${DOCKER_IMAGE}:${DOCKER_TAG}"
             }
         }
-
         stage('Docker Tag & Push') {
             steps {
                 script {
@@ -103,7 +87,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to container') {
             steps {
                 sh """
@@ -118,7 +101,6 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             echo "Pipeline réussi – application déployée sur http://10.10.10.50:8080"
