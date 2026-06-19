@@ -124,7 +124,7 @@ pipeline {
             echo "Pipeline en échec – vérifier les logs"
         }
         always {
-            sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
+            sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} --force || true"
         }
     }
 }
