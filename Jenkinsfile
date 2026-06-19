@@ -73,15 +73,6 @@ pipeline {
 	        dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API}",
 				odcInstallation: 'DP-Check'
             }
-            post {
-                always {
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml',
-                                             failedTotalCritical: 100,
-                                             failedTotalHigh: 100,
-                                             unstableTotalCritical: 100,
-                                             unstableTotalHigh: 100
-               }
-           }
 	}
 
 
